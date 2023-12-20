@@ -1,13 +1,14 @@
 package cyborgcabbage.amethystgravity.mixin;
 
-import com.fusionflux.gravity_api.api.GravityChangerAPI;
-import com.fusionflux.gravity_api.api.RotationParameters;
-import com.fusionflux.gravity_api.util.RotationUtil;
 import cyborgcabbage.amethystgravity.gravity.AnchorGravity;
 import cyborgcabbage.amethystgravity.gravity.FieldGravityVerifier;
 import cyborgcabbage.amethystgravity.gravity.GravityData;
 import cyborgcabbage.amethystgravity.gravity.GravityEffect;
 import cyborgcabbage.amethystgravity.item.GravityAnchor;
+import gravity_changer.GravityComponent;
+import gravity_changer.api.GravityChangerAPI;
+import gravity_changer.api.RotationParameters;
+import gravity_changer.util.RotationUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -32,8 +33,6 @@ public abstract class EntityMixinServer implements GravityData {
     public ArrayList<GravityEffect> amethystgravity$gravityEffectList = new ArrayList<>();
     public ArrayList<GravityEffect> amethystgravity$lowerGravityEffectList = new ArrayList<>();
     public GravityEffect amethystgravity$gravityEffect = null;
-    public int amethystgravity$counter = 0;
-    public boolean amethystgravity$holding = true;
     @Override
     public ArrayList<GravityEffect> getFieldList() {
         return amethystgravity$gravityEffectList;
@@ -54,58 +53,50 @@ public abstract class EntityMixinServer implements GravityData {
         return amethystgravity$gravityEffect;
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void tickInject(CallbackInfo ci){
+    @Override
+    public void updateGravity(GravityComponent component){
         Entity entity = (Entity) (Object) this;
-        if(entity instanceof LivingEntity living && !entity.isSpectator() && !entity.world.isClient){
-            anchorGravity(living);
+        if(entity instanceof LivingEntity living && !entity.isSpectator()){
+            anchorGravity(living, component);
         }
-        if(!(entity instanceof LivingEntity)){
-            //Init vars
-            final GravityEffect currentGravity = getFieldGravity();
-            GravityEffect newGravity = null;
-            List<GravityEffect> directions = getFieldList();
-            amethystgravity$counter++;
-            if (amethystgravity$counter >= 5) amethystgravity$counter = 0;
-            //If the player is flying or in spectator
-            if (!entity.isSpectator()) {
-                //Find the elements of directions which have the lowest volume
-                final double lowestVolume = directions.stream().map(GravityEffect::volume).min(Double::compare).orElse(0.0);
-                List<GravityEffect> highestPriority = directions.stream().filter(g -> g.volume() == lowestVolume).toList();
-                if (highestPriority.size() > 0) {
-                    newGravity = highestPriority.get(0);
-                }
-                if (currentGravity != null && highestPriority.size() > 0) {
-                    //Find an element with equal direction to currentGravity
-                    newGravity = highestPriority.stream().filter(ge -> ge.direction() == currentGravity.direction()).findFirst().orElse(newGravity);
-                }
+        //Init vars
+        final GravityEffect currentGravity = getFieldGravity();
+        boolean isFallFlying = entity instanceof LivingEntity living && living.isFallFlying();
+        GravityEffect newGravity = null;
+        List<GravityEffect> directions = getFieldList();
+        //If the player is flying or in spectator
+        if (!entity.isSpectator()) {
+            //Find the elements of directions which have the lowest volume
+            final double lowestVolume = directions.stream().map(GravityEffect::volume).min(Double::compare).orElse(0.0);
+            List<GravityEffect> highestPriority = directions.stream().filter(g -> g.volume() == lowestVolume).toList();
+            if (highestPriority.size() > 0) {
+                newGravity = highestPriority.get(0);
             }
-            Direction oldDirection = currentGravity == null ? null : currentGravity.direction();
-            Direction newDirection = newGravity == null ? null : newGravity.direction();
-            if (oldDirection != newDirection || amethystgravity$counter == 0) {
-                GravityChangerAPI.addGravity(entity, FieldGravityVerifier.newFieldGravity(newDirection, new RotationParameters()));
+            if (currentGravity != null && highestPriority.size() > 0) {
+                //Find an element with equal direction to currentGravity
+                newGravity = highestPriority.stream().filter(ge -> ge.direction() == currentGravity.direction()).findFirst().orElse(newGravity);
             }
-            setFieldGravity(newGravity);
-            //Clear direction pool
-            getFieldList().clear();
-            getLowerFieldList().clear();
         }
+        Direction newDirection = newGravity == null ? null : newGravity.direction();
+        if (newDirection != null) {
+            RotationParameters rotationParameters = new RotationParameters(entity.isOnGround(), !isFallFlying, RotationParameters.getDefault().rotationTimeMS());
+            FieldGravityVerifier.applyGravity(entity, newDirection, rotationParameters);
+        }
+        setFieldGravity(newGravity);
+        //Clear direction pool
+        getFieldList().clear();
+        getLowerFieldList().clear();
     }
 
-    private void anchorGravity(LivingEntity entity){
+    private void anchorGravity(LivingEntity entity, GravityComponent component){
         if(entity.getOffHandStack().getItem() instanceof GravityAnchor anchor){
-            GravityChangerAPI.addGravity(entity, AnchorGravity.newGravity(anchor.direction, new RotationParameters()));
-            amethystgravity$holding = true;
+            AnchorGravity.applyGravity(component, anchor.direction);
         }else if(entity.getMainHandStack().getItem() instanceof GravityAnchor anchor) {
-            GravityChangerAPI.addGravity(entity, AnchorGravity.newGravity(anchor.direction, new RotationParameters()));
-            amethystgravity$holding = true;
-        }else if(amethystgravity$holding){
-            GravityChangerAPI.addGravity(entity, AnchorGravity.newGravity(null, new RotationParameters()));
-            amethystgravity$holding = false;
+            AnchorGravity.applyGravity(component, anchor.direction);
         }
     }
 
-    @ModifyVariable(method = "move", at = @At("HEAD"), argsOnly = true)
+//    @ModifyVariable(method = "move", at = @At("HEAD"), argsOnly = true)
     private Vec3d moveInject(Vec3d movement){
         Entity e = (Entity) (Object) this;
         if (movement == e.getVelocity() && e instanceof LivingEntity entity) {
@@ -116,8 +107,6 @@ public abstract class EntityMixinServer implements GravityData {
                 final GravityEffect currentGravity = getFieldGravity();
                 GravityEffect newGravity = null;
                 List<GravityEffect> directions = getFieldList();
-                amethystgravity$counter++;
-                if (amethystgravity$counter >= 5) amethystgravity$counter = 0;
                 //If the player is flying or in spectator
                 if (!entity.isSpectator()) {
                     //Find the elements of directions which have the lowest volume
@@ -129,8 +118,8 @@ public abstract class EntityMixinServer implements GravityData {
                     //Get colliding directions
                     List<Direction> localCollidingDirections = new ArrayList<>();
                     Box box = entity.getBoundingBox();
-                    List<VoxelShape> entityCollisions = entity.world.getEntityCollisions(entity, box.stretch(movement));
-                    Vec3d adjustedMovement = (movement.lengthSquared() == 0.0) ? movement : Entity.adjustSingleAxisMovementForCollisions(entity, movement, box, entity.world, entityCollisions);
+                    List<VoxelShape> entityCollisions = entity.getWorld().getEntityCollisions(entity, box.stretch(movement));
+                    Vec3d adjustedMovement = (movement.lengthSquared() == 0.0) ? movement : Entity.adjustMovementForCollisions(entity, movement, box, entity.getWorld(), entityCollisions);
                     if (movement.x > adjustedMovement.x) localCollidingDirections.add(Direction.EAST);
                     if (movement.x < adjustedMovement.x) localCollidingDirections.add(Direction.WEST);
                     if (movement.y > adjustedMovement.y) localCollidingDirections.add(Direction.UP);
@@ -152,9 +141,9 @@ public abstract class EntityMixinServer implements GravityData {
                 }
                 Direction oldDirection = currentGravity == null ? null : currentGravity.direction();
                 Direction newDirection = newGravity == null ? null : newGravity.direction();
-                if (oldDirection != newDirection || amethystgravity$counter == 0) {
-                    RotationParameters rotationParameters = new RotationParameters().alternateCenter(true).rotateView(!isFallFlying).rotateVelocity(entity.isOnGround());
-                    GravityChangerAPI.addGravity(entity, FieldGravityVerifier.newFieldGravity(newDirection, rotationParameters));
+                if (oldDirection != newDirection) {
+                    RotationParameters rotationParameters = new RotationParameters(entity.isOnGround(), !isFallFlying, RotationParameters.getDefault().rotationTimeMS());
+                    FieldGravityVerifier.applyGravity(entity, newDirection == null ? GravityChangerAPI.getBaseGravityDirection(entity) : newDirection, rotationParameters);
                 }
                 setFieldGravity(newGravity);
             }

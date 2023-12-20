@@ -1,10 +1,10 @@
 package cyborgcabbage.amethystgravity.block.entity;
 
-import com.fusionflux.gravity_api.util.RotationUtil;
 import cyborgcabbage.amethystgravity.AmethystGravity;
 import cyborgcabbage.amethystgravity.block.CylinderFieldGeneratorBlock;
 import cyborgcabbage.amethystgravity.block.ui.CylinderFieldGeneratorScreenHandler;
 import cyborgcabbage.amethystgravity.gravity.GravityEffect;
+import gravity_changer.util.RotationUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;

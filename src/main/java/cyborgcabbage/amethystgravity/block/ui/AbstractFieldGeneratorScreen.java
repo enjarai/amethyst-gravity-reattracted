@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import cyborgcabbage.amethystgravity.AmethystGravity;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.GameRenderer;
@@ -16,7 +17,7 @@ import net.minecraft.util.Identifier;
 import java.awt.*;
 import java.text.DecimalFormat;
 
-public abstract class AbstractFieldGeneratorScreen<T extends AbstractFieldGeneratorScreenHandler> extends HandledScreen<T> {
+public abstract class AbstractFieldGeneratorScreen<T extends AbstractFieldGeneratorScreenHandler<T>> extends HandledScreen<T> {
     private static final Identifier TEXTURE = new Identifier(AmethystGravity.MOD_ID, "textures/gui/blank.png");
     ButtonWidget polarityButton;
     ButtonWidget visibilityButton;
@@ -31,22 +32,21 @@ public abstract class AbstractFieldGeneratorScreen<T extends AbstractFieldGenera
     }
 
     @Override
-    protected void drawBackground(MatrixStack matrices, float delta, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+    protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, TEXTURE);
         int x = (width - backgroundWidth) / 2;
         int y = (height - backgroundHeight) / 2;
-        drawTexture(matrices, x, y, 0, 0, backgroundWidth, backgroundHeight);
+        context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        renderBackground(matrices);
-        super.render(matrices, mouseX, mouseY, delta);
-        renderValuesAndLabels(matrices);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        renderBackground(context);
+        super.render(context, mouseX, mouseY, delta);
+        renderValuesAndLabels(context);
         //Tooltip
-        drawMouseoverTooltip(matrices, mouseX, mouseY);
+        drawMouseoverTooltip(context, mouseX, mouseY);
 
         if(polarityButton != null) polarityButton.setMessage(getPolarityText());
         if(visibilityButton != null) visibilityButton.setMessage(getVisibilityText());
@@ -70,19 +70,20 @@ public abstract class AbstractFieldGeneratorScreen<T extends AbstractFieldGenera
         int bX = (width - bWidth) / 2;
         int bY = (height - bHeight) / 2 + 5;
         //Polarity Button
-        polarityButton = addDrawableChild(new ButtonWidget(bX, bY + 20, bWidth, bHeight, getPolarityText(), button -> handler.polarity = 1 - handler.polarity));
+        polarityButton = addDrawableChild(ButtonWidget.builder(getPolarityText(), button -> handler.polarity = 1 - handler.polarity)
+                .dimensions(bX, bY + 20, bWidth, bHeight).build());
         //Visibility
-        visibilityButton = addDrawableChild(new ButtonWidget(bX, bY + 45, bWidth, bHeight, getVisibilityText(), button -> {
+        visibilityButton = addDrawableChild(ButtonWidget.builder(getVisibilityText(), button -> {
             handler.visibility++;
             if(handler.visibility >= 3 || handler.visibility < 0){
                 handler.visibility = 0;
             }
-        }));
+        }).dimensions(bX, bY + 45, bWidth, bHeight).build());
         //Apply Changes
-        applyChanges = addDrawableChild(new ButtonWidget(bX, bY + 70, bWidth, bHeight, Text.translatable("amethystgravity.fieldGenerator.applyChanges"), button -> {
+        applyChanges = addDrawableChild(ButtonWidget.builder(Text.translatable("amethystgravity.fieldGenerator.applyChanges"), button -> {
             sendMenuUpdatePacket(handler.height, handler.width, handler.depth, handler.radius, handler.polarity, handler.visibility);
-            closeScreen();
-        }));
+            close();
+        }).dimensions(bX, bY + 70, bWidth, bHeight).build());
     }
 
     private Text getPolarityText(){
@@ -103,22 +104,22 @@ public abstract class AbstractFieldGeneratorScreen<T extends AbstractFieldGenera
         }
     }
 
-    protected void renderValuesAndLabels(MatrixStack matrices){
+    protected void renderValuesAndLabels(DrawContext context){
     }
 
-    protected void drawValue(MatrixStack matrices, double value, int xOffset){
+    protected void drawValue(DrawContext context, double value, int xOffset){
         int tX = (width) / 2;
         int tY = (height - textRenderer.fontHeight) / 2 + 6;
         DecimalFormat df = new DecimalFormat("0.0");
 
         String heightValue = df.format(value);
-        textRenderer.draw(matrices, heightValue, tX-textRenderer.getWidth(heightValue)/2.f+xOffset, tY-28, Color.DARK_GRAY.getRGB());
+        context.drawText(textRenderer, heightValue, (int) (tX-textRenderer.getWidth(heightValue)/2.f+xOffset), tY-28, Color.DARK_GRAY.getRGB(), true);
     }
 
-    protected void drawLabel(MatrixStack matrices, String label, int xOffset){
+    protected void drawLabel(DrawContext context, String label, int xOffset){
         int tX = (width) / 2;
         int tY = (height - textRenderer.fontHeight) / 2 + 6;
-        textRenderer.draw(matrices, label, tX-textRenderer.getWidth(label)/2.f+0.5f+xOffset, tY-68, Color.DARK_GRAY.getRGB());
+        context.drawText(textRenderer, label, (int) (tX-textRenderer.getWidth(label)/2.f+0.5f+xOffset), tY-68, Color.DARK_GRAY.getRGB(), true);
     }
 
     protected void sendMenuUpdatePacket(int height, int width, int depth, int radius, int polarity, int visibility){

@@ -4,14 +4,14 @@ import cyborgcabbage.amethystgravity.block.entity.CylinderFieldGeneratorBlockEnt
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.RenderLayer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Matrix3f;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 
@@ -27,54 +27,54 @@ public class CylinderFieldGeneratorBlockEntityRenderer extends AbstractFieldGene
 
         float r = radius+.5f-SMIDGE;
         float w = (float)entity.getWidth()/2.f-SMIDGE;
-        ArrayList<Vec3f> outer = new ArrayList<>();
+        ArrayList<Vector3f> outer = new ArrayList<>();
         switch(entity.getAxis()){
             case X -> {
-                outer.add(new Vec3f( w, r, r));
-                outer.add(new Vec3f( w, r,-r));
-                outer.add(new Vec3f( w,-r, r));
-                outer.add(new Vec3f( w,-r,-r));
-                outer.add(new Vec3f(-w, r, r));
-                outer.add(new Vec3f(-w, r,-r));
-                outer.add(new Vec3f(-w,-r, r));
-                outer.add(new Vec3f(-w,-r,-r));
+                outer.add(new Vector3f( w, r, r));
+                outer.add(new Vector3f( w, r,-r));
+                outer.add(new Vector3f( w,-r, r));
+                outer.add(new Vector3f( w,-r,-r));
+                outer.add(new Vector3f(-w, r, r));
+                outer.add(new Vector3f(-w, r,-r));
+                outer.add(new Vector3f(-w,-r, r));
+                outer.add(new Vector3f(-w,-r,-r));
             }
             case Y -> {
-                outer.add(new Vec3f( r, w, r));
-                outer.add(new Vec3f( r, w,-r));
-                outer.add(new Vec3f( r,-w, r));
-                outer.add(new Vec3f( r,-w,-r));
-                outer.add(new Vec3f(-r, w, r));
-                outer.add(new Vec3f(-r, w,-r));
-                outer.add(new Vec3f(-r,-w, r));
-                outer.add(new Vec3f(-r,-w,-r));
+                outer.add(new Vector3f( r, w, r));
+                outer.add(new Vector3f( r, w,-r));
+                outer.add(new Vector3f( r,-w, r));
+                outer.add(new Vector3f( r,-w,-r));
+                outer.add(new Vector3f(-r, w, r));
+                outer.add(new Vector3f(-r, w,-r));
+                outer.add(new Vector3f(-r,-w, r));
+                outer.add(new Vector3f(-r,-w,-r));
             }
             case Z -> {
-                outer.add(new Vec3f( r, r, w));
-                outer.add(new Vec3f( r, r,-w));
-                outer.add(new Vec3f( r,-r, w));
-                outer.add(new Vec3f( r,-r,-w));
-                outer.add(new Vec3f(-r, r, w));
-                outer.add(new Vec3f(-r, r,-w));
-                outer.add(new Vec3f(-r,-r, w));
-                outer.add(new Vec3f(-r,-r,-w));
+                outer.add(new Vector3f( r, r, w));
+                outer.add(new Vector3f( r, r,-w));
+                outer.add(new Vector3f( r,-r, w));
+                outer.add(new Vector3f( r,-r,-w));
+                outer.add(new Vector3f(-r, r, w));
+                outer.add(new Vector3f(-r, r,-w));
+                outer.add(new Vector3f(-r,-r, w));
+                outer.add(new Vector3f(-r,-r,-w));
             }
         }
 
-        ArrayList<Vec3f> inner = new ArrayList<>();
-        for (Vec3f v : outer) inner.add(v.copy());
+        ArrayList<Vector3f> inner = new ArrayList<>();
+        for (Vector3f v : outer) inner.add(new Vector3f(v));
 
         switch(entity.getAxis()){
             case X -> inner.replaceAll((a) -> {
-                a.multiplyComponentwise(1,0,0);
+                a.mul(1,0,0);
                 return a;
             });
             case Y -> inner.replaceAll((a) -> {
-                a.multiplyComponentwise(0,1,0);
+                a.mul(0,1,0);
                 return a;
             });
             case Z -> inner.replaceAll((a) -> {
-                a.multiplyComponentwise(0,0,1);
+                a.mul(0,0,1);
                 return a;
             });
         }
@@ -102,8 +102,8 @@ public class CylinderFieldGeneratorBlockEntityRenderer extends AbstractFieldGene
         faces.add(new IntFour(0, 1, 3, 2));
 
         VertexConsumer arrowBuffer = vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(ARROW_TEXTURE));
-        Matrix4f m = matrixStack.peek().getModel();
-        Matrix3f n = matrixStack.peek().getNormal();
+        Matrix4f m = matrixStack.peek().getPositionMatrix();
+        Matrix3f n = matrixStack.peek().getNormalMatrix();
 
         float diagonal = (float)Math.sqrt(2)*radius;
 

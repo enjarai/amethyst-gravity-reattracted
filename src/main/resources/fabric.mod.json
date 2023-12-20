@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "amethystgravity",
+  "version": "${version}",
+  "entrypoints": {
+    "main": [
+      "cyborgcabbage.amethystgravity.AmethystGravity"
+    ],
+    "client": [
+      "cyborgcabbage.amethystgravity.client.AmethystGravityClient"
+    ]
+  },
+  "depends": {
+  },
+  "name": "Amethyst Gravity",
+  "description": "Lets you change player gravity",
+  "authors": [
+    "CyborgCabbage",
+    "enjarai"
+  ],
+  "license": "MIT",
+  "contact": {
+    "homepage": "https://modrinth.com/mod/amethyst-gravity",
+    "sources": "https://github.com/CyborgCabbage/amethystgravity",
+    "issues": "https://github.com/CyborgCabbage/amethystgravity/issues"
+  },
+  "icon": "assets/amethystgravity/icon.png",
+  "mixins": [
+    "amethystgravity.mixins.json"
+  ]
+}

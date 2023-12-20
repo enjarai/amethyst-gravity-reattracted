@@ -4,13 +4,13 @@ import cyborgcabbage.amethystgravity.block.entity.PlanetFieldGeneratorBlockEntit
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.RenderLayer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Matrix3f;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 
@@ -24,26 +24,26 @@ public class PlanetFieldGeneratorBlockEntityRenderer extends AbstractFieldGenera
     protected void renderForceField(PlanetFieldGeneratorBlockEntity entity, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, float animation) {
         float radius = (float)entity.getRadius();
 
-        ArrayList<Vec3f> inner = new ArrayList<>();
-        inner.add(new Vec3f( .5f, .5f, .5f));
-        inner.add(new Vec3f( .5f, .5f,-.5f));
-        inner.add(new Vec3f( .5f,-.5f, .5f));
-        inner.add(new Vec3f( .5f,-.5f,-.5f));
-        inner.add(new Vec3f(-.5f, .5f, .5f));
-        inner.add(new Vec3f(-.5f, .5f,-.5f));
-        inner.add(new Vec3f(-.5f,-.5f, .5f));
-        inner.add(new Vec3f(-.5f,-.5f,-.5f));
+        ArrayList<Vector3f> inner = new ArrayList<>();
+        inner.add(new Vector3f( .5f, .5f, .5f));
+        inner.add(new Vector3f( .5f, .5f,-.5f));
+        inner.add(new Vector3f( .5f,-.5f, .5f));
+        inner.add(new Vector3f( .5f,-.5f,-.5f));
+        inner.add(new Vector3f(-.5f, .5f, .5f));
+        inner.add(new Vector3f(-.5f, .5f,-.5f));
+        inner.add(new Vector3f(-.5f,-.5f, .5f));
+        inner.add(new Vector3f(-.5f,-.5f,-.5f));
 
         float r = radius+.5f-SMIDGE;
-        ArrayList<Vec3f> outer = new ArrayList<>();
-        outer.add(new Vec3f( r, r, r));
-        outer.add(new Vec3f( r, r,-r));
-        outer.add(new Vec3f( r,-r, r));
-        outer.add(new Vec3f( r,-r,-r));
-        outer.add(new Vec3f(-r, r, r));
-        outer.add(new Vec3f(-r, r,-r));
-        outer.add(new Vec3f(-r,-r, r));
-        outer.add(new Vec3f(-r,-r,-r));
+        ArrayList<Vector3f> outer = new ArrayList<>();
+        outer.add(new Vector3f( r, r, r));
+        outer.add(new Vector3f( r, r,-r));
+        outer.add(new Vector3f( r,-r, r));
+        outer.add(new Vector3f( r,-r,-r));
+        outer.add(new Vector3f(-r, r, r));
+        outer.add(new Vector3f(-r, r,-r));
+        outer.add(new Vector3f(-r,-r, r));
+        outer.add(new Vector3f(-r,-r,-r));
 
         ArrayList<IntPair> edges = new ArrayList<>();
         edges.add(new IntPair(0, 1));
@@ -68,8 +68,8 @@ public class PlanetFieldGeneratorBlockEntityRenderer extends AbstractFieldGenera
         faces.add(new IntFour(0, 1, 3, 2));
 
         VertexConsumer buffer = vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(ARROW_TEXTURE));
-        Matrix4f m = matrixStack.peek().getModel();
-        Matrix3f n = matrixStack.peek().getNormal();
+        Matrix4f m = matrixStack.peek().getPositionMatrix();
+        Matrix3f n = matrixStack.peek().getNormalMatrix();
 
         float diagonal = (float)Math.sqrt(2)*radius;
 

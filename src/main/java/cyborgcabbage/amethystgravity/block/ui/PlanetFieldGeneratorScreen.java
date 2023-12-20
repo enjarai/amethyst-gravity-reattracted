@@ -1,5 +1,6 @@
 package cyborgcabbage.amethystgravity.block.ui;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
@@ -21,16 +22,18 @@ public class PlanetFieldGeneratorScreen extends AbstractFieldGeneratorScreen<Pla
         int bX = (width - bWidth) / 2;
         int bY = (height - bHeight) / 2 + 5;
         //Radius
-        addDrawableChild(new ButtonWidget(bX, bY - 48, bWidth, bHeight, Text.translatable("amethystgravity.fieldGenerator.increase"), button -> handler.setRadius(handler.radius + magnitude)));
-        addDrawableChild(new ButtonWidget(bX, bY - 8, bWidth, bHeight, Text.translatable("amethystgravity.fieldGenerator.decrease"), button -> handler.setRadius(handler.radius - magnitude)));
+        addDrawableChild(ButtonWidget.builder(Text.translatable("amethystgravity.fieldGenerator.increase"), button -> handler.setRadius(handler.radius + magnitude))
+                .dimensions(bX, bY - 48, bWidth, bHeight).build());
+        addDrawableChild(ButtonWidget.builder(Text.translatable("amethystgravity.fieldGenerator.decrease"), button -> handler.setRadius(handler.radius - magnitude))
+                .dimensions(bX, bY - 8, bWidth, bHeight).build());
     }
 
     @Override
-    protected void renderValuesAndLabels(MatrixStack matrices) {
-        super.renderValuesAndLabels(matrices);
+    protected void renderValuesAndLabels(DrawContext context) {
+        super.renderValuesAndLabels(context);
         //Draw values
-        drawValue(matrices, handler.radius/10.0, 0);
+        drawValue(context, handler.radius/10.0, 0);
         //Draw labels
-        drawLabel(matrices, "Radius", 0);
+        drawLabel(context, "Radius", 0);
     }
 }

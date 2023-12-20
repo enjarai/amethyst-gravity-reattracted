@@ -1,5 +1,5 @@
 plugins {
-	id 'org.quiltmc.loom' version '0.12.+'
+	id 'fabric-loom' version '1.4-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -7,7 +7,7 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = "${project.mod_version}+${project.minecraft_version}"
 group = project.maven_group
 
 repositories {
@@ -17,36 +17,43 @@ repositories {
 	maven {
 		url "https://maven.terraformersmc.com/"
 	}
+	maven { url 'https://maven.ladysnake.org/releases' }
+
 	maven {
-		name = 'Ladysnake Mods'
-		url = 'https://ladysnake.jfrog.io/artifactory/mods'
-	}
-	/*maven {
 		name = "Modrinth"
 		url = "https://api.modrinth.com/maven"
 		content {
 			includeGroup "maven.modrinth"
 		}
-	}*/
+	}
 	mavenLocal()
 }
 
 dependencies {
 	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:$project.minecraft_version"
-	mappings(loom.layered {
-		addLayer(quiltMappings.mappings("org.quiltmc:quilt-mappings:${minecraft_version}+build.${mappings_version}:v2"))
-	})
-	modImplementation "org.quiltmc:quilt-loader:${project.loader_version}"
-	modImplementation "org.quiltmc.quilted-fabric-api:quilted-fabric-api:${project.quilted_version}-${minecraft_version}"
-	modImplementation "Gaider10:Gravity-Api:${project.gravitychanger_version}"
-	//modImplementation "maven.modrinth:gravitychanger:${project.gravitychanger_version}"
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API. This is technically optional, but you probably want it anyway.
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_version}"
+	modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_version}"
+	modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-world:${project.cardinal_components_version}"
+
+	modImplementation("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
+		exclude(group: "net.fabricmc.fabric-api")
+	}
+
+	modImplementation "maven.modrinth:gravity-api-fork:${project.gravitychanger_version}"
+	//modImplementation "maven.modrinth:gravitychanger:"
 }
 
 processResources {
 	inputs.property "version", project.version
 
-	filesMatching("quilt.mod.json") {
+	filesMatching("fabric.mod.json") {
 		expand "version": project.version
 	}
 }
@@ -71,17 +78,24 @@ jar {
 
 // configure the maven publication
 publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
+	repositories {
+		maven {
+			name = "enjaraiMaven"
+			url = "https://maven.enjarai.nl/releases"
+			credentials(PasswordCredentials)
+			authentication {
+				basic(BasicAuthentication)
+			}
 		}
 	}
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+	publications {
+		mavenJava(MavenPublication) {
+			groupId = project.maven_group
+			artifactId = archivesBaseName
+			version = project.version
+
+			from components.java
+		}
 	}
 }

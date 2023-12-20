@@ -10,11 +10,8 @@ import cyborgcabbage.amethystgravity.client.render.block.entity.PlanetFieldGener
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.util.Identifier;
 
 public class AmethystGravityClient implements ClientModInitializer {
     @Override
@@ -25,9 +22,9 @@ public class AmethystGravityClient implements ClientModInitializer {
          * Modify the namespace and particle id accordingly.
          *
          * This is only used if you plan to add your own textures for the particle. Otherwise, remove  this.*/
-        ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).register(((atlasTexture, registry) -> {
-            registry.register(new Identifier(AmethystGravity.MOD_ID, "particle/gravity_indicator"));
-        }));
+//        ClientSpriteRegistryCallback.event(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE).register(((atlasTexture, registry) -> {
+//            registry.register(new Identifier(AmethystGravity.MOD_ID, "particle/gravity_indicator"));
+//        })); TODO need this??
 
         /* Registers our particle client-side.
          * First argument is our particle's instance, created previously on ExampleMod.

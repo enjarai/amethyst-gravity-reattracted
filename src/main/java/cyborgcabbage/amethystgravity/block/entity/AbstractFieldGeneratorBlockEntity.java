@@ -108,12 +108,12 @@ public abstract class AbstractFieldGeneratorBlockEntity extends BlockEntity impl
     }
 
     public BlockEntityUpdateS2CPacket toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.of(this);
+        return BlockEntityUpdateS2CPacket.create(this);
     }
 
     @Override
     public NbtCompound toInitialChunkDataNbt() {
-        return toNbt();
+        return createNbt();
     }
 
     protected int searchAmethyst(){

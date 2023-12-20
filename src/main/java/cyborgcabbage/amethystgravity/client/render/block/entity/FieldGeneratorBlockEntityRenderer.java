@@ -1,18 +1,18 @@
 package cyborgcabbage.amethystgravity.client.render.block.entity;
 
-import com.fusionflux.gravity_api.util.RotationUtil;
 import cyborgcabbage.amethystgravity.block.entity.FieldGeneratorBlockEntity;
+import gravity_changer.util.RotationUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.RenderLayer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Matrix3f;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 
@@ -29,26 +29,26 @@ public class FieldGeneratorBlockEntityRenderer extends AbstractFieldGeneratorBlo
         double height = entity.getHeight();
         double width = entity.getWidth();
         double depth = entity.getDepth();
-        ArrayList<Vec3f> p = new ArrayList<>();
-        p.add(new Vec3f(-.5f*(float)width+SMIDGE, 1*(float)height-SMIDGE, -.5f*(float)depth+SMIDGE));
-        p.add(new Vec3f(-.5f*(float)width+SMIDGE, 1*(float)height-SMIDGE, .5f*(float)depth-SMIDGE));
-        p.add(new Vec3f(.5f*(float)width-SMIDGE, 1*(float)height-SMIDGE, .5f*(float)depth-SMIDGE));
-        p.add(new Vec3f(.5f*(float)width-SMIDGE, 1*(float)height-SMIDGE, -.5f*(float)depth+SMIDGE));
-        p.add(new Vec3f(-.5f*(float)width+SMIDGE, 0*(float)height+SMIDGE, -.5f*(float)depth+SMIDGE));
-        p.add(new Vec3f(-.5f*(float)width+SMIDGE, 0*(float)height+SMIDGE, .5f*(float)depth-SMIDGE));
-        p.add(new Vec3f(.5f*(float)width-SMIDGE, 0*(float)height+SMIDGE, .5f*(float)depth-SMIDGE));
-        p.add(new Vec3f(.5f*(float)width-SMIDGE, 0*(float)height+SMIDGE, -.5f*(float)depth+SMIDGE));
-        for (Vec3f vertex : p) {
-            Vec3f rotated = RotationUtil.vecPlayerToWorld(vertex, direction);
-            Vec3f shift = entity.getDirection().getUnitVector();
-            shift.multiplyComponentwise(-.5f,-.5f,-.5f);
+        ArrayList<Vector3f> p = new ArrayList<>();
+        p.add(new Vector3f(-.5f*(float)width+SMIDGE, 1*(float)height-SMIDGE, -.5f*(float)depth+SMIDGE));
+        p.add(new Vector3f(-.5f*(float)width+SMIDGE, 1*(float)height-SMIDGE, .5f*(float)depth-SMIDGE));
+        p.add(new Vector3f(.5f*(float)width-SMIDGE, 1*(float)height-SMIDGE, .5f*(float)depth-SMIDGE));
+        p.add(new Vector3f(.5f*(float)width-SMIDGE, 1*(float)height-SMIDGE, -.5f*(float)depth+SMIDGE));
+        p.add(new Vector3f(-.5f*(float)width+SMIDGE, 0*(float)height+SMIDGE, -.5f*(float)depth+SMIDGE));
+        p.add(new Vector3f(-.5f*(float)width+SMIDGE, 0*(float)height+SMIDGE, .5f*(float)depth-SMIDGE));
+        p.add(new Vector3f(.5f*(float)width-SMIDGE, 0*(float)height+SMIDGE, .5f*(float)depth-SMIDGE));
+        p.add(new Vector3f(.5f*(float)width-SMIDGE, 0*(float)height+SMIDGE, -.5f*(float)depth+SMIDGE));
+        for (Vector3f vertex : p) {
+            Vector3f rotated = RotationUtil.vecPlayerToWorld(vertex, direction);
+            Vector3f shift = entity.getDirection().getUnitVector();
+            shift.mul(-.5f,-.5f,-.5f);
             rotated.add(shift);
             vertex.set(rotated);
         }
 
         VertexConsumer buffer = vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(ARROW_TEXTURE));
-        Matrix4f m = matrixStack.peek().getModel();
-        Matrix3f n = matrixStack.peek().getNormal();
+        Matrix4f m = matrixStack.peek().getPositionMatrix();
+        Matrix3f n = matrixStack.peek().getNormalMatrix();
         float h0 = -animation;
         float h1 = -animation;
         if(entity.getPolarity() == 1) {
