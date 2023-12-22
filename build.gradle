@@ -94,6 +94,10 @@ if (stonecutter.current.isActive()) { // run configs for non-active version woul
 	}
 }
 
+loom {
+	accessWidenerPath = file("../../src/main/resources/amethystgravity.accesswidener")
+}
+
 // configure the maven publication
 publishing {
 	repositories {
@@ -129,49 +133,44 @@ publishMods {
 	def min = project.min_target
 	def max = project.max_target
 
-	if (project.enjaraiModrinthToken == null) {
-		modrinth {
-			projectId = project.modrinth_id
-			accessToken = project.enjaraiModrinthToken
+	modrinth {
+		projectId = project.modrinth_id
+		accessToken = providers.gradleProperty('enjaraiModrinthToken').get()
 
-			if (min == max) {
-				minecraftVersions.add(min)
-			} else {
-				minecraftVersionRange {
-					start = min
-					end = max
-				}
+		if (min == max) {
+			minecraftVersions.add(min)
+		} else {
+			minecraftVersionRange {
+				start = min
+				end = max
 			}
-
-			requires { slug = "fabric-api" }
-			requires { slug = "gravity-api-fork" }
 		}
+
+		requires { slug = "fabric-api" }
+		requires { slug = "gravity-api-fork" }
 	}
 
-	if (project.enjaraiCurseforgeToken == null) {
-		curseforge {
-			projectId = project.curseforge_id
-			accessToken = project.enjaraiCurseforgeToken
+	curseforge {
+		projectId = project.curseforge_id
+		accessToken = providers.gradleProperty('enjaraiCurseforgeToken').get()
 
-			if (min == max) {
-				minecraftVersions.add(min)
-			} else {
-				minecraftVersionRange {
-					start = min
-					end = max
-				}
+		if (min == max) {
+			minecraftVersions.add(min)
+		} else {
+			minecraftVersionRange {
+				start = min
+				end = max
 			}
-
-			requires { slug = "fabric-api" }
 		}
+
+		requires { slug = "fabric-api" }
 	}
 
-	if (project.enjaraiGithubToken == null) {
-		github {
-			accessToken = project.enjaraiGithubToken
-			repository = project.github_repo
-			commitish = "master"
-			tagName = project.version
-		}
+	github {
+		repository = project.github_repo
+		accessToken = providers.gradleProperty('enjaraiGithubToken').get()
+
+		commitish = "master"
+		tagName = project.version
 	}
 }

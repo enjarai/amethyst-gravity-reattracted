@@ -32,6 +32,7 @@
   "mixins": [
     "amethystgravity.mixins.json"
   ],
+  "accessWidener": "amethystgravity.accesswidener",
   "custom": {
     "modmenu": {
       "links": {

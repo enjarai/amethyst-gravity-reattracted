@@ -15,3 +15,9 @@ stonecutter.registerChiseled tasks.register("chiseledPublish", stonecutter.chise
 
     ofTask "publish"
 }
+
+stonecutter.registerChiseled tasks.register("chiseledPublishMods", stonecutter.chiseled) {
+    setGroup "publishing"
+
+    ofTask "publishMods"
+}
