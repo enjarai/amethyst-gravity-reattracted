@@ -47,7 +47,6 @@ dependencies {
 	}
 
 	modImplementation "maven.modrinth:gravity-api-fork:${project.gravitychanger_version}"
-	//modImplementation "maven.modrinth:gravitychanger:"
 }
 
 processResources {

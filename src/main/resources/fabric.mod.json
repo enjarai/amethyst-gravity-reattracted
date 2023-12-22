@@ -4,25 +4,25 @@
   "version": "${version}",
   "entrypoints": {
     "main": [
-      "cyborgcabbage.amethystgravity.AmethystGravity"
+      "dev.enjarai.amethystgravity.AmethystGravity"
     ],
     "client": [
-      "cyborgcabbage.amethystgravity.client.AmethystGravityClient"
+      "dev.enjarai.amethystgravity.client.AmethystGravityClient"
     ]
   },
   "depends": {
   },
-  "name": "Amethyst Gravity",
-  "description": "Lets you change player gravity",
+  "name": "Amethyst Gravity: Reattracted",
+  "description": "Provides survival-friendly options for changing the direction of gravity.",
   "authors": [
     "CyborgCabbage",
     "enjarai"
   ],
   "license": "MIT",
   "contact": {
-    "homepage": "https://modrinth.com/mod/amethyst-gravity",
-    "sources": "https://github.com/CyborgCabbage/amethystgravity",
-    "issues": "https://github.com/CyborgCabbage/amethystgravity/issues"
+    "homepage": "https://enjarai.dev/",
+    "sources": "https://github.com/enjarai/amethyst-gravity-reattracted",
+    "issues": "https://github.com/enjarai/amethyst-gravity-reattracted/issues"
   },
   "icon": "assets/amethystgravity/icon.png",
   "mixins": [
