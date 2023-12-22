@@ -41,9 +41,17 @@ public abstract class AbstractFieldGeneratorBlock<K extends AbstractFieldGenerat
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         if (world.isClient)
+            /*? if >=1.20.2 { *//*
+            return validateTicker(type, getBlockEntity(), K::clientTick);
+            *//*? } else { */
             return checkType(type, getBlockEntity(), K::clientTick);
+            /*? } */
         else
+            /*? if >=1.20.2 { *//*
+            return validateTicker(type, getBlockEntity(), K::serverTick);
+            *//*? } else { */
             return checkType(type, getBlockEntity(), K::serverTick);
+            /*? } */
     }
 
     public abstract BlockEntityType<K> getBlockEntity();

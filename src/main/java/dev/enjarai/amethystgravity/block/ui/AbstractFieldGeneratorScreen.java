@@ -41,7 +41,7 @@ public abstract class AbstractFieldGeneratorScreen<T extends AbstractFieldGenera
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackground(context);
+        renderBackground(context/*? if >=1.20.2 { *//*, mouseX, mouseY, delta*//*? } */);
         super.render(context, mouseX, mouseY, delta);
         renderValuesAndLabels(context);
         //Tooltip

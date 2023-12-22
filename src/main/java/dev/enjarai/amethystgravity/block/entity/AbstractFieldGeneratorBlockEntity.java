@@ -54,9 +54,15 @@ public abstract class AbstractFieldGeneratorBlockEntity extends BlockEntity impl
     }
 
     protected static double getVolume(Box box){
+        /*? if >=1.20.2 { *//*
+        double x = box.getLengthX();
+        double y = box.getLengthY();
+        double z = box.getLengthZ();
+        *//*? } else { */
         double x = box.getXLength();
         double y = box.getYLength();
         double z = box.getZLength();
+        /*? } */
         return x*y*z;
     }
 
@@ -66,9 +72,15 @@ public abstract class AbstractFieldGeneratorBlockEntity extends BlockEntity impl
     }
 
     protected static double getSurfaceArea(Box box){
+        /*? if >=1.20.2 { *//*
+        double x = box.getLengthX();
+        double y = box.getLengthY();
+        double z = box.getLengthZ();
+        *//*? } else { */
         double x = box.getXLength();
         double y = box.getYLength();
         double z = box.getZLength();
+        /*? } */
         return 2*x*y+2*x*z+2*y*z;
     }
 

@@ -1,4 +1,4 @@
-Introduces new blocks which allow you to control gravity with the hidden power of amethyst!
+Amethyst Gravity: Reattracted introduces new blocks which allow you to control gravity with the hidden power of amethyst!
 
 **This mod is a Fabric 1.20+ port of [Amethyst Gravity](https://modrinth.com/mod/amethyst-gravity)
 by [CyborgCabbage](https://github.com/CyborgCabbage).**

@@ -11,6 +11,10 @@
     ]
   },
   "depends": {
+    "minecraft": "${minecraft_dep}",
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "gravity_changer_q": "*"
   },
   "name": "Amethyst Gravity: Reattracted",
   "description": "Provides survival-friendly options for changing the direction of gravity.",
@@ -21,11 +25,22 @@
   "license": "MIT",
   "contact": {
     "homepage": "https://enjarai.dev/",
-    "sources": "https://github.com/enjarai/amethyst-gravity-reattracted",
-    "issues": "https://github.com/enjarai/amethyst-gravity-reattracted/issues"
+    "sources": "https://github.com/${github_repo}",
+    "issues": "https://github.com/${github_repo}/issues"
   },
   "icon": "assets/amethystgravity/icon.png",
   "mixins": [
     "amethystgravity.mixins.json"
-  ]
+  ],
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/WcYsDDQtyR"
+      }
+    },
+    "projects": {
+      "modrinth": "${modrinth_id}",
+      "curseforge": "${curseforge_id}"
+    }
+  }
 }

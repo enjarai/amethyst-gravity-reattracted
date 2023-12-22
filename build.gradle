@@ -1,16 +1,23 @@
 plugins {
 	id 'fabric-loom' version '1.4-SNAPSHOT'
 	id 'maven-publish'
+	id "me.modmuss50.mod-publish-plugin" version "0.4.5"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = "${project.mod_version}+${project.minecraft_version}"
+version = "${project.mod_version}+${stonecutter.current.version}"
 group = project.maven_group
 
 repositories {
+	maven {
+		url "https://maven.enjarai.dev/releases"
+	}
+	maven {
+		url "https://maven.enjarai.dev/mirrors"
+	}
 	maven {
 		url "https://maven.shedaniel.me/"
 	}
@@ -31,7 +38,7 @@ repositories {
 
 dependencies {
 	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	minecraft "com.mojang:minecraft:${stonecutter.current.version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
@@ -47,13 +54,16 @@ dependencies {
 	}
 
 	modImplementation "maven.modrinth:gravity-api-fork:${project.gravitychanger_version}"
+
+	modImplementation include("nl.enjarai:cicada-lib:${project.cicada_version}")
 }
 
-processResources {
-	inputs.property "version", project.version
+def minecraft_dep = ">=${project.property('min_target')}- <=${project.property('max_target')}"
 
+processResources {
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand "version": project.version, "minecraft_dep": minecraft_dep, "modrinth_id": project.modrinth_id,
+				"curseforge_id": project.curseforge_id, "github_repo": project.github_repo
 	}
 }
 
@@ -72,6 +82,15 @@ java {
 jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
+	}
+}
+
+if (stonecutter.current.isActive()) { // run configs for non-active version would be invalid
+	loom {
+		runConfigs.all {
+			ideConfigGenerated = true // generate IDE tasks for running client, server and testmod, datagen if those are present
+			runDir "../../run" // use a global run directory for all versions
+		}
 	}
 }
 
@@ -95,6 +114,64 @@ publishing {
 			version = project.version
 
 			from components.java
+		}
+	}
+}
+
+publishMods {
+	file = remapJar.archiveFile
+	displayName = "${project.mod_version} for ${stonecutter.current.version}"
+	version = project.version
+	changelog = getRootProject().file("CHANGELOG.md").text
+	type = STABLE
+	modLoaders.add("fabric")
+
+	def min = project.min_target
+	def max = project.max_target
+
+	if (project.enjaraiModrinthToken == null) {
+		modrinth {
+			projectId = project.modrinth_id
+			accessToken = project.enjaraiModrinthToken
+
+			if (min == max) {
+				minecraftVersions.add(min)
+			} else {
+				minecraftVersionRange {
+					start = min
+					end = max
+				}
+			}
+
+			requires { slug = "fabric-api" }
+			requires { slug = "gravity-api-fork" }
+		}
+	}
+
+	if (project.enjaraiCurseforgeToken == null) {
+		curseforge {
+			projectId = project.curseforge_id
+			accessToken = project.enjaraiCurseforgeToken
+
+			if (min == max) {
+				minecraftVersions.add(min)
+			} else {
+				minecraftVersionRange {
+					start = min
+					end = max
+				}
+			}
+
+			requires { slug = "fabric-api" }
+		}
+	}
+
+	if (project.enjaraiGithubToken == null) {
+		github {
+			accessToken = project.enjaraiGithubToken
+			repository = project.github_repo
+			commitish = "master"
+			tagName = project.version
 		}
 	}
 }
